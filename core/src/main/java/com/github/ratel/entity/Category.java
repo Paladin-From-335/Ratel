@@ -24,4 +24,8 @@ public class Category {
     @Column(name = "subcategory_id", nullable = false, columnDefinition = "BIGINT")
     private String subcategoryId;
 
+    public Category(String categoryName, String subcategoryId) {
+        this.categoryName = categoryName;
+        this.subcategoryId = subcategoryId;
+    }
 }
