@@ -1,9 +1,7 @@
 package com.github.ratel.utils;
 
-import com.github.ratel.dto.OrderDto;
-import com.github.ratel.dto.ProductDto;
-import com.github.ratel.dto.UserAuthDto;
-import com.github.ratel.dto.UserRegDto;
+import com.github.ratel.dto.*;
+import com.github.ratel.entity.Category;
 import com.github.ratel.entity.Order;
 import com.github.ratel.entity.Product;
 import com.github.ratel.entity.User;
@@ -95,6 +93,19 @@ public class TransferObj {
                 data.getCreatedAt(),
                 data.getEmail(),
                 data.getAddress()
+        );
+    }
+
+    public static Category toCategory(CategoryDto data) {
+        return new Category(
+                data.getCategoryName(),
+                data.getSubcategoryId());
+    }
+
+    public static CategoryDto fromCategory(Category data) {
+        return new CategoryDto(
+                data.getCategoryName(),
+                data.getSubcategoryId()
         );
     }
 }
