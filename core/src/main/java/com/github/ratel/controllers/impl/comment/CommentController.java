@@ -3,11 +3,7 @@ package com.github.ratel.controllers.impl.comment;
 import com.github.ratel.dto.CommentDto;
 import com.github.ratel.entity.Comment;
 import com.github.ratel.services.impl.CommentService;
-import com.github.ratel.validations.ResponseErrorValidation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.util.ObjectUtils;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
