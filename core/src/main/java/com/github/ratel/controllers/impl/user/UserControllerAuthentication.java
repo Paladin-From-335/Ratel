@@ -10,9 +10,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-@RestController
-@RequestMapping(path = "/authentication")
-@RequiredArgsConstructor
+//@RestController
+//@RequestMapping(path = "/authentication")
+//@RequiredArgsConstructor
 public class UserControllerAuthentication implements IUserControllerAuthentication {
 
     private UserService userService;

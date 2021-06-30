@@ -5,6 +5,7 @@ import com.github.ratel.entity.RoleEntity;
 import com.github.ratel.entity.User;
 import com.github.ratel.repositories.RoleEntityRepo;
 import com.github.ratel.repositories.UserRepository;
+import com.github.ratel.utils.TransferObj;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -72,16 +73,24 @@ public class UserService {
     }
 
     public User changeUserInfo(long userId, UserRegDto userRegDto) {
-        User user = findUserById(userId).orElseThrow(() -> new RuntimeException("Not found user!"));
 
-        user.setFirstname(userRegDto.getFirstname());
-        user.setLastname(userRegDto.getLastname());
-        user.setEmail(userRegDto.getEmail());
-        user.setLogin(userRegDto.getLogin());
-        user.setHashPassword(userRegDto.getHashPassword());
-        user.setPhone(userRegDto.getPhone());
-        user.setAddress(userRegDto.getAddress());
-
+//        User user = findUserById(userId).orElseThrow(() -> new RuntimeException("Not found user!"));
+        User user = new User();
+        try {
+            Optional<User> userById= findUserById(userId);
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+        } finally {
+            user = TransferObj.toUser(userRegDto);
+        }
+//        user.setFirstname(userRegDto.getFirstname());
+//        user.setLastname(userRegDto.getLastname());
+//        user.setEmail(userRegDto.getEmail());
+//        user.setLogin(userRegDto.getLogin());
+//        user.setHashPassword(userRegDto.getHashPassword());
+//        user.setPhone(userRegDto.getPhone());
+//        user.setAddress(userRegDto.getAddress());
+        user = TransferObj.toUser(userRegDto);
         return UserRepository.save(user);
     }
 

@@ -10,9 +10,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-@RestController
-@RequestMapping(path = "/registration")
-@RequiredArgsConstructor
+//@RestController
+//@RequestMapping(path = "/registration")
+//@RequiredArgsConstructor
 public class UserControllerControllerRegistration implements IUserControllerRegistration {
 
     private UserService userService;
