@@ -9,41 +9,42 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class UserService {
 
-    private UserRepository UserRepository;
+    private final UserRepository userRepository;
 
-    private RoleEntityRepo roleEntityRepo;
+    private final RoleEntityRepo roleEntityRepo;
 
     private final PasswordEncoder passwordEncoder;
 
-    @Autowired
-    public UserService(UserRepository UserRepository, RoleEntityRepo roleEntityRepo, PasswordEncoder passwordEncoder) {
-        this.UserRepository = UserRepository;
+
+    public UserService(UserRepository userRepository, RoleEntityRepo roleEntityRepo, PasswordEncoder passwordEncoder) {
+        this.userRepository = userRepository;
         this.roleEntityRepo = roleEntityRepo;
         this.passwordEncoder = passwordEncoder;
     }
 
     public List<User> findAllUsers() {
-        return UserRepository.findAll();
+        return userRepository.findAll();
     }
 
     public Optional<User> findUserById(long userId) {
-        return UserRepository.findById(userId);
+        return userRepository.findById(userId);
     }
 
     public User findByLogin(String login) {
-        return UserRepository.findByLogin(login);
+        return userRepository.findByLogin(login);
     }
 
     public User findByLoginAndPassword(String login, String password) {
         User user = findByLogin(login);
         if (user != null) {
-            if (passwordEncoder.matches(password, user.getHashPassword())) {
+            if (passwordEncoder.matches(password, user.getPassword())) {
                 return user;
             }
         }
@@ -53,9 +54,14 @@ public class UserService {
     public User saveUser(User user) {
         RoleEntity userRole = roleEntityRepo.findByName("ROLE_USER");
         user.setRole(userRole);
-        user.setHashPassword(passwordEncoder.encode(user.getHashPassword()));
-        return UserRepository.save(user);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        return userRepository.save(user);
     }
+
+    public void updateUser(User user) {
+        userRepository.save(user);
+    }
+
 
     public long createUser(UserRegDto userRegDto) {
         User user = new User();
@@ -63,12 +69,12 @@ public class UserService {
         user.setLastname(userRegDto.getLastname());
         user.setEmail(userRegDto.getEmail());
         user.setLogin(userRegDto.getLogin());
-        user.setHashPassword(userRegDto.getHashPassword());
+        user.setPassword(userRegDto.getPassword());
         user.setPhone(userRegDto.getPhone());
         user.setAddress(userRegDto.getAddress());
 
         doesUserExist(user.getUserId());
-        return UserRepository.save(user).getUserId();
+        return userRepository.save(user).getUserId();
     }
 
     public User changeUserInfo(long userId, UserRegDto userRegDto) {
@@ -78,15 +84,15 @@ public class UserService {
         user.setLastname(userRegDto.getLastname());
         user.setEmail(userRegDto.getEmail());
         user.setLogin(userRegDto.getLogin());
-        user.setHashPassword(userRegDto.getHashPassword());
+        user.setPassword(userRegDto.getPassword());
         user.setPhone(userRegDto.getPhone());
         user.setAddress(userRegDto.getAddress());
-
-        return UserRepository.save(user);
+        user.setUpdatedAt(new Date());
+        return userRepository.save(user);
     }
 
     public void deleteUser(long userId) {
-        UserRepository.deleteById(userId);
+        userRepository.deleteById(userId);
     }
 
     private void doesUserExist(long userId) {
