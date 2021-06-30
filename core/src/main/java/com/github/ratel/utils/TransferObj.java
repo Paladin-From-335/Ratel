@@ -1,10 +1,7 @@
 package com.github.ratel.utils;
 
 import com.github.ratel.dto.*;
-import com.github.ratel.entity.Category;
-import com.github.ratel.entity.Order;
-import com.github.ratel.entity.Product;
-import com.github.ratel.entity.User;
+import com.github.ratel.entity.*;
 
 public class TransferObj {
 
@@ -106,6 +103,24 @@ public class TransferObj {
         return new CategoryDto(
                 data.getCategoryName(),
                 data.getSubcategoryId()
+        );
+    }
+
+    public static Comment toComment(CommentDto data) {
+        return new Comment(
+                data.getUserId(),
+                data.getProductId(),
+                data.getCommentText(),
+                data.getCreatedAt()
+        );
+    }
+
+    public static CommentDto fromComment(Comment data) {
+        return new CommentDto(
+                data.getProductId(),
+                data.getUserId(),
+                data.getCommentText(),
+                data.getCreatedAt()
         );
     }
 }
