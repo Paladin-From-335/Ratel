@@ -2,25 +2,27 @@ package com.github.ratel.services.impl;
 
 import com.github.ratel.entity.User;
 import com.github.ratel.security.CustomUserDetails;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {
 
     private final UserService userService;
 
-    public CustomUserDetailsService(UserService userService) {
-        this.userService = userService;
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        User user = this.userService.findByLogin(username);
+        return null;
     }
 
-    @Override
-    public CustomUserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userService.findByLogin(username);
-        return CustomUserDetails.fromUserToCustomUserDetails(user);
+
+    public UserDetails loadUserById(Long id) throws AuthenticationException {
+        return CustomUserDetails.create(this.userService.findUserById(id));
     }
 }

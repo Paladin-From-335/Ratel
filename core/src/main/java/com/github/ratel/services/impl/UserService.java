@@ -4,7 +4,6 @@ import com.github.ratel.dto.UserRegDto;
 import com.github.ratel.entity.Role;
 import com.github.ratel.entity.User;
 import com.github.ratel.exceptions.EntityNotFound;
-import com.github.ratel.payload.UserVerificationStatus;
 import com.github.ratel.repositories.RoleRepository;
 import com.github.ratel.repositories.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -49,7 +48,7 @@ public class UserService {
                 return user;
             }
         }
-     throw new EntityNotFound();
+        throw new EntityNotFound();
     }
 
     public User saveUser(User user) {
@@ -100,16 +99,4 @@ public class UserService {
             throw new RuntimeException("This user already exists!");
         }
     }
-
-//    public boolean verificationUser(String code) {
-//        User user = userRepository.findByActivationCode(code);
-//        if (user == null) {
-//            return false;
-//        }
-//        if (user.getActivationCode().equals(code)) {
-//            user.setVerification(UserVerificationStatus.VERIFIED);
-//            userRepository.save(user);
-//        }
-//        return true;
-//    }
 }

@@ -7,21 +7,23 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 public class CustomUserDetails implements UserDetails {
 
-    private String login;
+    private final Optional<User> user;
 
-    private String password;
+    private final Collection<? extends GrantedAuthority> grantedAuthorities;
 
-    private Collection<? extends GrantedAuthority> grantedAuthorities;
+    public CustomUserDetails(Optional<User> user, Collection<? extends GrantedAuthority> grantedAuthorities) {
+        this.user = user;
+        this.grantedAuthorities = grantedAuthorities;
+    }
 
-    public static CustomUserDetails fromUserToCustomUserDetails(User user) {
-        CustomUserDetails cud = new CustomUserDetails();
-        cud.login = user.getLogin();
-        cud.password = user.getPassword();
-        cud.grantedAuthorities = Collections.singletonList(new SimpleGrantedAuthority(user.getRole().getName()));
-    return cud;
+    public static UserDetails create(Optional<User> user) {
+        List<SimpleGrantedAuthority> grantedAuthorities = Collections.singletonList(new SimpleGrantedAuthority(user.get().getRole().toString()));
+        return new CustomUserDetails(user, grantedAuthorities);
     }
 
     @Override
@@ -31,12 +33,12 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public String getPassword() {
-        return password;
+        return this.user.get().getPassword();
     }
 
     @Override
     public String getUsername() {
-        return login;
+        return this.user.get().getLogin();
     }
 
     @Override

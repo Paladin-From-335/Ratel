@@ -1,12 +1,11 @@
 package com.github.ratel.security;
 
 import com.github.ratel.services.impl.CustomUserDetailsService;
-import lombok.extern.java.Log;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.filter.GenericFilterBean;
 
 import javax.servlet.FilterChain;
@@ -30,13 +29,17 @@ public class JwtFilter extends GenericFilterBean {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         logger.info("Do filter: ");
-        String token = getTokenFromRequest((HttpServletRequest) request);
-        if (token != null && jwtTokenProvider.validateToken(token)) {
-            String userLogin = jwtTokenProvider.getLoginFromToken(token);
-            CustomUserDetails customUserDetails = customUserDetailsService.loadUserByUsername(userLogin);
+        var token = getTokenFromRequest((HttpServletRequest) request);
+        if (token != null && this.jwtTokenProvider.validateToken(token)) {
+            var id = this.jwtTokenProvider.getUserIdFromToken(token);
+            UserDetails user = this.customUserDetailsService.loadUserById(id);
             UsernamePasswordAuthenticationToken auth =
-                    new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
+                    new UsernamePasswordAuthenticationToken(
+                            user,
+                            null,
+                            user.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(auth);
+            request.setAttribute("userId", id);
         }
         chain.doFilter(request, response);
     }

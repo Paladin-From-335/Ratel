@@ -24,13 +24,13 @@ public class JwtTokenProvider {
         return Jwts.builder()
                 .setSubject(login)
                 .setExpiration(date)
-                .signWith(SignatureAlgorithm.HS256, secretWord)
+                .signWith(SignatureAlgorithm.HS256, this.secretWord)
                 .compact();
     }
 
     public boolean validateToken(String token) {
         try {
-            Jwts.parser().setSigningKey(secretWord).parseClaimsJws(token);
+            Jwts.parser().setSigningKey(this.secretWord).parseClaimsJws(token);
             return true;
         } catch (Exception e) {
             throw new InvalidTokenException("Invalid token");
@@ -38,7 +38,13 @@ public class JwtTokenProvider {
     }
 
     public String getLoginFromToken(String token) {
-        Claims claims = Jwts.parser().setSigningKey(secretWord).parseClaimsJws(token).getBody();
+        Claims claims = Jwts.parser().setSigningKey(this.secretWord).parseClaimsJws(token).getBody();
         return claims.getSubject();
     }
+
+    public Long getUserIdFromToken(String token) {
+        Claims claims = Jwts.parser().setSigningKey(this.secretWord.getBytes()).parseClaimsJws(token).getBody();
+        return Long.parseLong(claims.getSubject());
+    }
+
 }
