@@ -3,6 +3,7 @@ package com.github.ratel.controllers;
 import com.github.ratel.dto.UserRegDto;
 import com.github.ratel.entity.User;
 import com.github.ratel.services.impl.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -11,6 +12,7 @@ import java.util.List;
 @RequestMapping("/user")
 public class UserController {
 
+    @Autowired
     private UserService userService;
 
     @GetMapping
@@ -20,7 +22,8 @@ public class UserController {
 
     @GetMapping("/{userId}")
     public User findUserById(@PathVariable long userId) {
-        return userService.findUserById(userId).orElseThrow(() -> new RuntimeException("Not found user!"));
+        User user = userService.getUserById(userId);
+        return user;
     }
 
     @PostMapping
@@ -35,6 +38,6 @@ public class UserController {
 
     @DeleteMapping("/{userId}")
     public void deleteUser(@PathVariable long userId) {
-        userService.deleteUser(userId);
+        userService.deleteUserById(userId);
     }
 }

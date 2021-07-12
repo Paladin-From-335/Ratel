@@ -4,6 +4,7 @@ import com.github.ratel.dto.UserRegDto;
 import com.github.ratel.entity.Role;
 import com.github.ratel.entity.User;
 import com.github.ratel.exceptions.EntityNotFound;
+import com.github.ratel.payload.EntityStatus;
 import com.github.ratel.payload.UserVerificationStatus;
 import com.github.ratel.repositories.RoleRepository;
 import com.github.ratel.repositories.UserRepository;
@@ -36,6 +37,10 @@ public class UserService {
 
     public Optional<User> findUserById(long userId) {
         return userRepository.findById(userId);
+    }
+
+    public User getUserById(long userId) {
+        return userRepository.getById(userId);
     }
 
     public User findByLogin(String login) {
@@ -91,8 +96,14 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public void deleteUser(long userId) {
-        userRepository.deleteById(userId);
+    public void deleteUserById(long userId) {
+        User user = this.userRepository.getById(userId);
+        if(user.getStatus().equals(EntityStatus.on)) {
+            user.setStatus(EntityStatus.off);
+            this.updateUser(user);
+        } else {
+            throw new EntityNotFound();
+        }
     }
 
     private void doesUserExist(long userId) {
@@ -101,15 +112,4 @@ public class UserService {
         }
     }
 
-//    public boolean verificationUser(String code) {
-//        User user = userRepository.findByActivationCode(code);
-//        if (user == null) {
-//            return false;
-//        }
-//        if (user.getActivationCode().equals(code)) {
-//            user.setVerification(UserVerificationStatus.VERIFIED);
-//            userRepository.save(user);
-//        }
-//        return true;
-//    }
 }
