@@ -1,12 +1,17 @@
 package com.github.ratel.controllers;
 
 import com.github.ratel.dto.ProductDto;
-import com.github.ratel.payload.EntityStatus;
 import com.github.ratel.entity.Product;
+import com.github.ratel.entity.Subcategory;
 import com.github.ratel.exceptions.ProductException;
+import com.github.ratel.payload.EntityStatus;
+import com.github.ratel.services.SubcategoryService;
 import com.github.ratel.services.impl.ProductService;
-import lombok.AllArgsConstructor;
-import org.springframework.security.access.prepost.PreAuthorize;
+import com.github.ratel.utils.TransferObj;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -15,15 +20,26 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/product")
-@AllArgsConstructor
+@RequiredArgsConstructor
+@ApiImplicitParams(
+        @ApiImplicitParam(
+                name = "Authorization",
+                value = "Access Token",
+                required = true,
+                paramType = "header",
+                example = "Bearer access_token"
+        )
+)
 public class ProductController {
 
     private final ProductService productService;
 
-    //GET /product
+    private final SubcategoryService subcategoryService;
+
     @GetMapping
-    public List<Product> findAllProducts() {
-        return productService.findAllProducts();
+    public List<ProductDto> findAllProducts() {
+        List<Product> products = this.productService.findAllProducts();
+        return TransferObj.toAllProductDto(products);
     }
 
     @GetMapping("/search")
@@ -56,42 +72,44 @@ public class ProductController {
         return searchResult;
     }
 
-    //GET /product/status
     @GetMapping("/status")
-    public List<Product> findAllProductsByStatus(@PathVariable EntityStatus status) {
-        return productService.findAllProductsByStatus(status);
+    public List<ProductDto> findAllProductsByStatus(@PathVariable EntityStatus status) {
+        List<Product> products = productService.findAllProductsByStatus(status);
+        return TransferObj.toAllProductDto(products);
     }
 
-    //GET /product/{vendorCode}
     @GetMapping("/{vendorCode}")
-    public Product findProductByVendorCode(@PathVariable String vendorCode) {
-        return productService.findProductByVendorCode(vendorCode)
+    public ProductDto findProductByVendorCode(@PathVariable String vendorCode) {
+        Product product = productService.findProductByVendorCode(vendorCode)
                 .orElseThrow(() -> new ProductException("Not found product with needed vendor code"));
+        return TransferObj.toProduct(product);
     }
 
-    //GET /product/{productId}
     @GetMapping("/{productId}")
-    public Product findProductByProductId(@PathVariable long productId) {
-        return productService.findProductByProductId(productId)
+    public ProductDto findProductByProductId(@PathVariable long productId) {
+        Product product = productService.findProductByProductId(productId)
                 .orElseThrow(() -> new ProductException("Not found product with needed id!"));
+        return TransferObj.toProduct(product);
     }
 
-    //POST /product
-    @PreAuthorize(value = "hasRole('admin')")
-    @PostMapping
-    public long createProduct(@RequestBody ProductDto productDto) {
-        return productService.createProduct(productDto);
+    @PostMapping("/{subcategoryId}")
+    @ResponseStatus(HttpStatus.CREATED)
+    public void createProduct(@PathVariable long subcategoryId, @RequestBody ProductDto payload) {
+        Subcategory subcategory = this.subcategoryService.findById(subcategoryId);
+        Product product = TransferObj.toProducts(payload);
+        product.setSubcategory(subcategory);
+        subcategory.addProduct(product);
+        this.productService.createProduct(product);
     }
 
-    //PUT /product/{productId}
-    @PostMapping("/{productId}")
-    public Product editProduct(@PathVariable long productId, @RequestBody ProductDto productDto) {
-        return productService.editProduct(productId, productDto);
+    @PutMapping("/{productId}")
+    public void updateProduct(@PathVariable long productId, @RequestBody ProductDto payload) {
+        Product product = TransferObj.toProducts(payload);
+        this.productService.editProduct(productId, product);
     }
 
-    //DELETE /product/{productId}
-    @DeleteMapping("/{productId}")
-    public void deleteOrder(@PathVariable long productId) {
-        productService.deleteProduct(productId);
+    @PutMapping("/{productId}/status")
+    public void updateProductStatus(@PathVariable long productId, @RequestBody EntityStatus status) {
+        this.productService.updateProductStatusOff(productId, status);
     }
 }
